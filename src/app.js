@@ -1,29 +1,38 @@
 import './../styles/styles.css';
 import { initializeApp } from "firebase/app";
-import { getDownloadURL, getStorage, list, ref as storageRef } from "firebase/storage";
+import { getDownloadURL, getStorage, list, ref as storageRef, uploadBytes } from "firebase/storage";
 import { addDoc, arrayRemove, arrayUnion, collection, deleteDoc, doc, getDoc, getDocs, getFirestore, onSnapshot, query, setDoc, updateDoc, where } from "firebase/firestore"
 import { getDatabase, onChildAdded, onValue, push, ref, remove, set } from "firebase/database";
+import { getAuth, EmailAuthProvider, onAuthStateChanged, signOut, updateProfile, GoogleAuthProvider } from "firebase/auth";
+import * as firebaseui from 'firebaseui';
 
 // Your web app's Firebase configuration
 
 const firebaseConfig = {
 
-  apiKey: "AIzaSyAAU9nEC4c3lHI45Y_kDy7Ieh88oAZbMNs",
-  authDomain: "project--start.firebaseapp.com",
-  databaseURL: "https://project--start-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "project--start",
-  storageBucket: "project--start.appspot.com",
-  messagingSenderId: "203391591533",
-  appId: "1:203391591533:web:c4db7b12cb7c01d0940b64"
-};
+    apiKey: "AIzaSyAAU9nEC4c3lHI45Y_kDy7Ieh88oAZbMNs",
+  
+    authDomain: "project--start.firebaseapp.com",
+  
+    databaseURL: "https://project--start-default-rtdb.europe-west1.firebasedatabase.app",
+  
+    projectId: "project--start",
+  
+    storageBucket: "project--start.appspot.com",
+  
+    messagingSenderId: "203391591533",
+  
+    appId: "1:203391591533:web:c4db7b12cb7c01d0940b64"
+  
+  };
+  
 
-  
-  
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
-//const db = getFirestore(app);
-const db = getDatabase();
+const db = getFirestore(app);
+//const db = getDatabase();
+
 
 //ZADANKO!
 
@@ -52,7 +61,7 @@ const db = getDatabase();
 //     }
 // });
 
-// const imageRef = ref(storage, "ZdjęcieCV.png");
+// // const imageRef = ref(storage, "ZdjęcieCV.png");
 // getDownloadURL(imageRef).then((url) => {
 //     const myImage = document.getElementById("myImage");
 //     myImage.src = url;
@@ -70,7 +79,7 @@ const db = getDatabase();
 //     if (file) {
 //         myResult.innerText = "Przesyłam...";
 //         const myFileNameInput = document.getElementById("myFileNameInput");
-//         const myFileRef = ref(storage, myFileNameInput.value);
+//           const myFileRef = ref(storage, myFileNameInput.value);
 
 //         uploadBytes(myFileRef, file).then((result) => {
 //             myResult.innerText = "Przesłano!";
@@ -126,8 +135,8 @@ const db = getDatabase();
 // })
 
 
-//ZADANKO
-// Dodajemy przycisk usuń, który usuwa wskazane zdjęcie i odświeża liste.
+// //ZADANKO
+// // Dodajemy przycisk usuń, który usuwa wskazane zdjęcie i odświeża liste.
 // function loadImagesList() {
 //     const storageRef = ref(storage);
 //     document.body.innerHTML = "";
@@ -165,58 +174,37 @@ const db = getDatabase();
 //         })
 //     })
 // }
+
 // loadImagesList();
 
-
-// 11.24 -------------------------------------------------------------------
-
-/* nadanie samemu ID */
-// const db = getFirestore(app);
-
-// const newDoc = doc(db, "users", "NowyUserId");
-// setDoc(newDoc, {
-//     Name: "Szymon",
-//     Surname: "Roszyk"
-// }, {
-//     merge: true
-// });
-
-/* dodanie z losowym ID */
 // const usersCollection = collection(db, "users");
 // addDoc(usersCollection, {
-//     Name: "JJ",
-//     Surname: "KKKK"
-// }, {
-//     merge: true
+//     Name: "Szymon",
+//     Surname: "Roszyk"
 // });
 
-/*zmienianie dokumentu - niedokończone :( */
-// const myDoc = doc(db, "users", "NowyUserId")
-// updateDoc(myDoc, {
-// name: "Jan",
-// surname: "Kowalski",
-// age: 50
-// })
-
-/* pobieranie dokumentu*/
-// const myDoc = doc(db, "users", "NowyUserId")
-// getDoc(myDoc)..then((respData) => {
-//     console.log(respData.data());
+// const myDoc = doc(db, "users", "NowyUserId");
+// getDoc(myDoc).then((respData) => {
+//     const myUser = respData.data();
+//     const test = myUser.Name;
 // });
 
+//ZADANKO
+// Pobierz dokument, a nastepnie jego pola (imie, nazwisko i wiek) przypisz do
+// 3 elementów HTML typu input. Następnie dodaj przycisk, który po kliknięciu pobierze aktualnie
+// wpisane dane w te inputy i zaktualizuje dokument o nowe wartość.
 // const myName = document.getElementById("myName");
 // const mySurname = document.getElementById("mySurname");
 // const myAge = document.getElementById("myAge");
 // const myBtn = document.getElementById("myBtn");
-// const myUsersList = document.getElementById("myUsersList");
 
-// const myDoc = doc(db, "users", "NowyUserId")
+// const myDoc = doc(db, "users", "NowyUserId");
 // getDoc(myDoc).then((respData) => {
 //     const myUser = respData.data();
 //     myName.value = myUser.Name;
 //     mySurname.value = myUser.Surname;
-//     myAge.value = myUser.Age
-//     });
+//     myAge.value = myUser.Age;
+// });
 
 // myBtn.addEventListener("click", () => {
 //     updateDoc(myDoc, {
@@ -227,6 +215,17 @@ const db = getDatabase();
 // })
 
 
+//ZADANKO
+// Wyswietl liste (imie i nazwisko) wszystkich dokumentów w users
+// Dodaj przycisk EDIT do każdego list itema
+// Po kliknięciu na EDIT inputy mają zostać uzupełnione o dane z dokumentu
+// Po kliknięciu na SAVE dokument ma zostać zaktualizowany
+// const myName = document.getElementById("myName");
+// const mySurname = document.getElementById("mySurname");
+// const myAge = document.getElementById("myAge");
+// const myBtn = document.getElementById("myBtn");
+// const myUsersList = document.getElementById("myUsersList");
+
 // const usersCollection = collection(db, "users");
 // getDocs(usersCollection).then((docs) => {
 //     docs.forEach((userDoc) => {
@@ -234,8 +233,6 @@ const db = getDatabase();
 //         const listItem = document.createElement("li");
 //         const editBtn = document.createElement("button");
 //         editBtn.innerText = "Edit";
-
-
 
 //         editBtn.addEventListener("click", () => {
 //             myName.value = user.Name;
@@ -249,7 +246,7 @@ const db = getDatabase();
 //         myUsersList.appendChild(listItem);
 //     })
 // });
-    
+
 // myBtn.addEventListener("click", (event) => {
 //     const myDoc = doc(db, "users", event.target.dataset.userId);
 //     updateDoc(myDoc, {
@@ -258,6 +255,7 @@ const db = getDatabase();
 //         Age: parseInt(myAge.value)
 //     })
 // })
+
 
 //ZADANKO
 // Utwórz dokument HTML zawierający pole input i przycisk. Po naciśnięciu przycisku
@@ -278,40 +276,34 @@ const db = getDatabase();
 //             listItem.innerText = `${user.Name} ${user.Surname}`;
 //             myUsersList.appendChild(listItem);
 //         })
-    // });
+//     });
 // });
 
-/*-------dodawanie czegoś do tablicy-------------------------------*/
-// const janKowalskiDoc = doc(db, "users", "JanKowalskiId");
-// updateDoc(janKowalskiDoc, {
-//     dzieci: arrayUnion("Stanisław")
-// });
 
-/*----------------ZADANIE DODAWANIE DO TABLICY DZIECI :) --------------*/
+//ZADANKO 
 // const childrenList = document.getElementById("childrenList");
 // const childNameInput = document.getElementById("childName");
 // const addChildBtn = document.getElementById("addChildBtn");
 // const janKowalskiDoc = doc(db, "users", "JanKowalskiId");
 
+
 // onSnapshot(janKowalskiDoc, (docRes) => {
 //     childrenList.innerHTML = "";
-//         const janek = docRes.data();
-//         janek.Dzieci.forEach(dziecko => {
-//             const itemDziecko = document.createElement("li");
-//             itemDziecko.innerText = dziecko;
-//             childrenList.appendChild(itemDziecko);
-//             //TUTAJ DODAJ PRZYCISK DELETE
-//             // + EVENT LISTENER NA CLICK
-//         });
+//     const janek = docRes.data();
+//     janek.Dzieci.forEach(dziecko => {
+//         const itemDziecko = document.createElement("li");
+//         itemDziecko.innerText = dziecko;
+//         childrenList.appendChild(itemDziecko);
+//         //TUTAJ DODAJ PRZYCISK DELETE
+//         // + EVENT LISTENER NA CLICK
 //     });
+// });
 
 // addChildBtn.addEventListener("click", () => {
 //     updateDoc(janKowalskiDoc, {
 //         Dzieci: arrayUnion(childNameInput.value)
 //     });
 // })
-
-/* ------------------- W CZASIE RZECZYWISTYM ---------------------- */
 
 // const userName = document.getElementById("userName");
 // const userSurname = document.getElementById("userSurname");
@@ -320,26 +312,29 @@ const db = getDatabase();
 // const usersList = document.getElementById("usersList");
 
 // addUserBtn.addEventListener("click", () => {
-  //     const userRef = push(usersRef);
-  // set(userRef, {
-  //   name: userName.value,
-  //   surname: userSurname.value,
-  //    });
-  // });
-
-
+//     const userRef = push(usersRef);
+//     set(userRef, {
+//         name: userName.value,
+//         surname: userSurname.value
+//     })
+// }
 // onValue(usersRef, (snapshot) => {
 //     usersList.innerHTML = "";
 //     snapshot.forEach(userSnapshot => {
 //         const user = userSnapshot.val();
 //         const listItem = document.createElement("li");
 //         listItem.innerText = `${user.name} ${user.surname}`;
+
+//         const removeBtn = document.createElement("button");
+//         removeBtn.innerText = "Remove";
+//         removeBtn.addEventListener("click", () => {
+//             remove(userSnapshot.ref);
+//         });
+//         listItem.appendChild(removeBtn);
+
 //         usersList.appendChild(listItem);
 //     });
 // })
-
-/*---------------NASTĘPNE ZADANIE3---- czat w czasie rzeczywistym--------------*/
-
 
 
 //ZADANKO
@@ -358,8 +353,6 @@ const db = getDatabase();
 //     }
 // })
 
-
-/*------------------------CHAT-----------------------*/
 
 // const usernameInput = document.getElementById("username");
 // const usercolorInput = document.getElementById("usercolor");
@@ -435,3 +428,88 @@ const db = getDatabase();
 //         userSelect.appendChild(option);
 //     })
 // })
+
+const auth = getAuth(app);
+
+
+const loginHeader = document.getElementById("loginHeader");
+const buttonSignOut = document.getElementById("signOutButton");
+const profilePhotoInput = document.getElementById("profilePhotoInput");
+const sendPhotoBtn = document.getElementById("sendPhoto");
+const photoProfileImg = document.getElementById("profilePhoto"); 
+const addressInput = document.getElementById("address");
+const motherNameInput = document.getElementById("motherName");
+const salary = document.getElementById("salary");
+const phoneNumber = document.getElementById("phoneNumber");
+const updateBtn = document.getElementById("updateBtn");
+
+buttonSignOut.addEventListener("click", () => {
+    signOut(auth);
+})
+
+updateBtn.addEventListener("click", () => {
+    const docRef = doc(db, `users/${auth.currentUser.uid}`);
+    setDoc(docRef, {
+        address: addressInput.value,
+        motherName: motherNameInput.value,
+        salary: salary.value,
+        phoneNumber: phoneNumber.value
+    });
+})
+
+// sendPhotoBtn.addEventListener("click", () => {
+//     const file = profilePhotoInput.files[0];
+//     const fileRef = storageRef(storage, `${auth.currentUser.uid}/${file.name}`);
+//     uploadBytes(fileRef, file).then(result => {
+//         getDownloadURL(fileRef).then((url) => {
+//             updateProfile(auth.currentUser, {
+//                 photoURL: url
+//             });
+//         });
+//     });
+// });
+
+sendPhotoBtn.addEventListener("click", async () => {
+    const file = profilePhotoInput.files[0];
+    const fileRef = storageRef(storage, `${auth.currentUser.uid}/${file.name}`);
+    const _ = await uploadBytes(fileRef, file);
+    const url = await getDownloadURL(fileRef);
+    updateProfile(auth.currentUser, {
+        photoURL: url
+    });
+});
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log(photoProfileImg.classList);
+        loginHeader.innerText = `Witaj ${user.displayName}!`
+        photoProfileImg.src = user.photoURL;
+        buttonSignOut.classList.remove("hidden");
+        profilePhotoInput.classList.remove("hidden");
+        sendPhotoBtn.classList.remove("hidden");
+        photoProfileImg.classList.remove("hidden");
+        
+    }
+    else {
+        loginHeader.innerText = "Zaloguj się! Dziadu!";
+        buttonSignOut.classList.add("hidden");
+        profilePhotoInput.classList.add("hidden");
+        sendPhotoBtn.classList.add("hidden");
+        photoProfileImg.classList.add("hidden");
+
+        const ui = new firebaseui.auth.AuthUI(auth);
+        ui.start('#firebaseui-auth-container', {
+            callbacks: {
+                signInSuccessWithAuthResult: (authResult, redirectUrl) => {
+                    console.log(authResult);
+                    console.log(redirectUrl);
+                }
+            },
+            signInOptions: [
+                EmailAuthProvider.PROVIDER_ID,
+                GoogleAuthProvider.PROVIDER_ID
+            ],
+            signInSuccessUrl: "http://localhost:8080/"
+        });
+    }
+});
